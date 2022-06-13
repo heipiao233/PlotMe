@@ -1,11 +1,14 @@
 package com.worldcretornica.plotme;
 
 import javax.annotation.Nonnull;
+
 import org.bukkit.block.data.BlockData;
 import com.griefcraft.model.Protection;
 import com.griefcraft.lwc.LWC;
 import org.bukkit.block.Block;
 import org.bukkit.Location;
+
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.io.Writer;
 import java.io.BufferedWriter;
@@ -125,74 +128,52 @@ public class PlotMe extends JavaPlugin {
         this.initialize();
         this.doMetric();
         final PluginManager pm = this.getServer().getPluginManager();
-        pm.registerEvents((Listener)new PlotListener(), (Plugin)this);
+        pm.registerEvents(new PlotListener(), this);
         if (pm.getPlugin("Vault") != null) {
             this.setupEconomy();
         }
         if (pm.getPlugin("WorldEdit") != null) {
             PlotMe.worldeditplugin = (WorldEditPlugin)pm.getPlugin("WorldEdit");
             try {
-                Class.forName("com.sk89q.worldedit.function.mask.Mask");
-                PlotMe.plotworldedit = (PlotWorldEdit)Class.forName("com.worldcretornica.plotme.worldedit.PlotWorldEdit6_0_0").getConstructor(new Class[0]).newInstance(new Object[0]);
+                PlotMe.plotworldedit = (PlotWorldEdit)Class.forName("com.worldcretornica.plotme.worldedit.PlotWorldEdit7_2").getConstructor().newInstance();
             }
             catch (Exception e) {
-                try {
-                    PlotMe.plotworldedit = (PlotWorldEdit)Class.forName("com.worldcretornica.plotme.worldedit.PlotWorldEdit5_7").getConstructor(new Class[0]).newInstance(new Object[0]);
-                }
-                catch (Exception e2) {
-                    PlotMe.logger.warning("Unable to hook to WorldEdit properly, please contact the developper of plotme with your WorldEdit version.");
-                    PlotMe.plotworldedit = null;
-                }
+                PlotMe.logger.warning("Unable to hook to WorldEdit properly, please contact the developper of plotme with your WorldEdit version.");
+                PlotMe.plotworldedit = null;
             }
-            pm.registerEvents((Listener)new PlotWorldEditListener(), (Plugin)this);
+            pm.registerEvents(new PlotWorldEditListener(), this);
         }
         if (pm.getPlugin("LWC") != null) {
             PlotMe.usinglwc = true;
         }
         if (PlotMe.allowToDeny) {
-            pm.registerEvents((Listener)new PlotDenyListener(), (Plugin)this);
+            pm.registerEvents(new PlotDenyListener(), this);
         }
-        this.getCommand("plotme").setExecutor((CommandExecutor)new PMCommand(this));
+        this.getCommand("plotme").setExecutor(new PMCommand(this));
         this.initialized = true;
         SqlManager.plotConvertToUUIDAsynchronously();
     }
     
     private void doMetric() {
-        try {
-            final Metrics metrics = new Metrics((Plugin)this);
-            final Metrics.Graph graphNbWorlds = metrics.createGraph("Plot worlds");
-            graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plot worlds") {
-                @Override
-                public int getValue() {
-                    return PlotMe.plotmaps.size();
+        final Metrics metrics = new Metrics(this, 15438);
+        metrics.addCustomChart(new Metrics.SingleLineChart("Plot worlds", PlotMe.plotmaps::size));
+        metrics.addCustomChart(new Metrics.SingleLineChart("Average Plot size", ()->{
+            if (PlotMe.plotmaps.size() > 0) {
+                int totalplotsize = 0;
+                for (final PlotMapInfo p : PlotMe.plotmaps.values()) {
+                    totalplotsize += p.PlotSize;
                 }
-            });
-            graphNbWorlds.addPlotter(new Metrics.Plotter("Average Plot size") {
-                @Override
-                public int getValue() {
-                    if (PlotMe.plotmaps.size() > 0) {
-                        int totalplotsize = 0;
-                        for (final PlotMapInfo p : PlotMe.plotmaps.values()) {
-                            totalplotsize += p.PlotSize;
-                        }
-                        return totalplotsize / PlotMe.plotmaps.size();
-                    }
-                    return 0;
-                }
-            });
-            graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plots") {
-                @Override
-                public int getValue() {
-                    int nbplot = 0;
-                    for (final PlotMapInfo p : PlotMe.plotmaps.values()) {
-                        nbplot += p.plots.size();
-                    }
-                    return nbplot;
-                }
-            });
-            metrics.start();
-        }
-        catch (IOException ex) {}
+                return totalplotsize / PlotMe.plotmaps.size();
+            }
+            return 0;
+        }));
+        metrics.addCustomChart(new Metrics.SingleLineChart("Number of plots", ()->{
+            int nbplot = 0;
+            for (final PlotMapInfo p : PlotMe.plotmaps.values()) {
+                nbplot += p.plots.size();
+            }
+            return nbplot;
+        }));
     }
     
     public ChunkGenerator getDefaultWorldGenerator(final String worldname, final String id) {
@@ -210,14 +191,14 @@ public class PlotMe extends JavaPlugin {
     public void initialize() {
         final PluginDescriptionFile pdfFile = this.getDescription();
         PlotMe.NAME = pdfFile.getName();
-        PlotMe.PREFIX = new StringBuilder().append(ChatColor.BLUE).append("[").append(PlotMe.NAME).append("] ").append(ChatColor.RESET).toString();
+        PlotMe.PREFIX = ChatColor.BLUE + "[" + PlotMe.NAME + "] " + ChatColor.RESET;
         PlotMe.configpath = this.getDataFolder().getAbsolutePath();
-        PlotMe.playersignoringwelimit = new HashSet<String>();
+        PlotMe.playersignoringwelimit = new HashSet<>();
         if (!this.getDataFolder().exists()) {
             this.getDataFolder().mkdirs();
         }
         final File configfile = new File(PlotMe.configpath, "config.yml");
-        final FileConfiguration config = (FileConfiguration)new YamlConfiguration();
+        final FileConfiguration config = new YamlConfiguration();
         try {
             config.load(configfile);
         }
@@ -292,7 +273,7 @@ public class PlotMe extends JavaPlugin {
         else {
             worlds = config.getConfigurationSection("worlds");
         }
-        PlotMe.plotmaps = new ConcurrentHashMap<String, PlotMapInfo>();
+        PlotMe.plotmaps = new ConcurrentHashMap<>();
         for (final String worldname : worlds.getKeys(false)) {
             final PlotMapInfo tempPlotInfo = new PlotMapInfo();
             final ConfigurationSection currworld = worlds.getConfigurationSection(worldname);
@@ -318,13 +299,13 @@ public class PlotMe extends JavaPlugin {
             }
             tempPlotInfo.DaysToExpiration = currworld.getInt("DaysToExpiration", 7);
             if (currworld.contains("ProtectedBlocks")) {
-                tempPlotInfo.ProtectedBlocks = this.stringToMaterial((List<String>)currworld.getStringList("ProtectedBlocks"));
+                tempPlotInfo.ProtectedBlocks = this.stringToMaterial(currworld.getStringList("ProtectedBlocks"));
             }
             else {
                 tempPlotInfo.ProtectedBlocks = this.getDefaultProtectedBlocks();
             }
             if (currworld.contains("PreventedItems")) {
-                tempPlotInfo.PreventedItems = this.stringToMaterial((List<String>)currworld.getStringList("PreventedItems"));
+                tempPlotInfo.PreventedItems = this.stringToMaterial(currworld.getStringList("PreventedItems"));
             }
             else {
                 tempPlotInfo.PreventedItems = this.getDefaultPreventedItems();
@@ -430,11 +411,11 @@ public class PlotMe extends JavaPlugin {
     }
     
     private List<Material> stringToMaterial(final List<String> stringList) {
-        return (List<Material>)stringList.stream().map(string -> Material.getMaterial(string.toUpperCase())).collect(Collectors.toList());
+        return stringList.stream().map(string -> Material.getMaterial(string.toUpperCase())).collect(Collectors.toList());
     }
     
     private List<String> matToString(final List<Material> matList) {
-        return (List<String>)matList.stream().map(mat -> mat.getKey().getKey()).collect(Collectors.toList());
+        return matList.stream().map(mat -> mat.getKey().getKey()).collect(Collectors.toList());
     }
     
     private Material stringToMaterial(final String string) {
@@ -448,7 +429,7 @@ public class PlotMe extends JavaPlugin {
     private void setupEconomy() {
         final RegisteredServiceProvider<Economy> economyProvider = this.getServer().getServicesManager().getRegistration(Economy.class);
         if (economyProvider != null) {
-            PlotMe.economy = (Economy)economyProvider.getProvider();
+            PlotMe.economy = economyProvider.getProvider();
         }
     }
     
@@ -471,7 +452,7 @@ public class PlotMe extends JavaPlugin {
     }
     
     public static boolean isIgnoringWELimit(final Player p) {
-        if (PlotMe.defaultWEAnywhere && cPerms((CommandSender)p, "PlotMe.admin.weanywhere")) {
+        if (PlotMe.defaultWEAnywhere && cPerms(p, "PlotMe.admin.weanywhere")) {
             return !PlotMe.playersignoringwelimit.contains(p.getName());
         }
         return PlotMe.playersignoringwelimit.contains(p.getName());
@@ -484,17 +465,17 @@ public class PlotMe extends JavaPlugin {
             return -1;
         }
         for (int ctr = 0; ctr < maxlimit; ++ctr) {
-            if (p.hasPermission(new StringBuilder().append("plotme.limit.").append(ctr).toString())) {
+            if (p.hasPermission("plotme.limit." + ctr)) {
                 max = ctr;
             }
         }
         if (max != -2) {
             return max;
         }
-        if (cPerms((CommandSender)p, "plotme.admin")) {
+        if (cPerms(p, "plotme.admin")) {
             return -1;
         }
-        if (cPerms((CommandSender)p, "plotme.use")) {
+        if (cPerms(p, "plotme.use")) {
             return 1;
         }
         return 0;
@@ -510,18 +491,18 @@ public class PlotMe extends JavaPlugin {
         String month = "";
         String day = "";
         if (imonth < 10) {
-            month = new StringBuilder().append("0").append(imonth).toString();
+            month = "0" + imonth;
         }
         else {
-            month = new StringBuilder().append("").append(imonth).toString();
+            month = "" + imonth;
         }
         if (iday < 10) {
-            day = new StringBuilder().append("0").append(iday).toString();
+            day = "0" + iday;
         }
         else {
-            day = new StringBuilder().append("").append(iday).toString();
+            day = "" + iday;
         }
-        return new StringBuilder().append("").append(cal.get(1)).append("-").append(month).append("-").append(day).toString();
+        return "" + cal.get(1) + "-" + month + "-" + day;
     }
     
     public static String getDate(final Date expireddate) {
@@ -529,7 +510,7 @@ public class PlotMe extends JavaPlugin {
     }
     
     private List<Material> getDefaultProtectedBlocks() {
-        final List<Material> protections = new ArrayList<Material>();
+        final List<Material> protections = new ArrayList<>();
         protections.add(Material.CHEST);
         protections.add(Material.FURNACE);
         protections.add(Material.END_PORTAL_FRAME);
@@ -563,7 +544,7 @@ public class PlotMe extends JavaPlugin {
     }
     
     private List<Material> getDefaultPreventedItems() {
-        final List<Material> preventeditems = new ArrayList<Material>();
+        final List<Material> preventeditems = new ArrayList<>();
         preventeditems.add(Material.INK_SAC);
         preventeditems.add(Material.FLINT_AND_STEEL);
         preventeditems.add(Material.MINECART);
@@ -582,13 +563,13 @@ public class PlotMe extends JavaPlugin {
     public void scheduleTask(final Runnable task, final int eachseconds, final int howmanytimes) {
         PlotMe.cscurrentlyprocessingexpired.sendMessage("" + PlotMe.PREFIX + ChatColor.RESET + caption("MsgStartDeleteSession"));
         for (int ctr = 0; ctr < howmanytimes / PlotMe.nbperdeletionprocessingexpired; ++ctr) {
-            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask((Plugin)this, task, (long)(ctr * eachseconds * 20));
+            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, task, ctr * eachseconds * 20);
         }
     }
     
     private void loadCaptions() {
         File filelang = new File(this.getDataFolder(), "caption-english.yml");
-        final TreeMap<String, String> properties = new TreeMap<String, String>();
+        final TreeMap<String, String> properties = new TreeMap<>();
         properties.put("MsgStartDeleteSession", "Starting delete session");
         properties.put("MsgDeletedExpiredPlots", "Deleted expired plot");
         properties.put("MsgDeleteSessionFinished", "Deletion session finished, rerun to reset more plots");
@@ -864,38 +845,26 @@ public class PlotMe extends JavaPlugin {
         properties.put("ErrCreatingPlotAt", "An error occured while creating the plot at");
         properties.put("ErrMovingPlot", "Error moving plot");
         this.CreateConfig(filelang, properties, "PlotMe Caption configuration \u03b1\u03c9");
-        if (PlotMe.language != "english") {
+        if (!PlotMe.language.equals("english")) {
             filelang = new File(this.getDataFolder(), "caption-" + PlotMe.language + ".yml");
             this.CreateConfig(filelang, properties, "PlotMe Caption configuration");
         }
-        InputStream input = null;
-        try {
-            input = (InputStream)new FileInputStream(filelang);
+        try (InputStream input = (InputStream) new FileInputStream(filelang)) {
             final Yaml yaml = new Yaml();
             final LinkedHashMap<String, String> obj = yaml.load(input);
             if (obj instanceof LinkedHashMap) {
                 final LinkedHashMap<String, String> data = obj;
-                PlotMe.captions = new HashMap<String, String>();
+                PlotMe.captions = new HashMap<>();
                 for (final String key : data.keySet()) {
                     PlotMe.captions.put(key, data.get(key));
                 }
             }
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             PlotMe.logger.severe("File not found: " + e.getMessage());
             e.printStackTrace();
-        }
-        catch (Exception e2) {
+        } catch (Exception e2) {
             PlotMe.logger.severe("Error with configuration: " + e2.getMessage());
             e2.printStackTrace();
-        }
-        finally {
-            if (input != null) {
-                try {
-                    input.close();
-                }
-                catch (IOException ex) {}
-            }
         }
     }
     
@@ -905,10 +874,10 @@ public class PlotMe extends JavaPlugin {
             try {
                 final File dir = new File(this.getDataFolder(), "");
                 dir.mkdirs();
-                writer = new BufferedWriter((Writer)new OutputStreamWriter((OutputStream)new FileOutputStream(file, true), "UTF-8"));
+                writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, true), StandardCharsets.UTF_8));
                 writer.write("# " + Title + "\n");
                 for (final Map.Entry<String, String> e : properties.entrySet()) {
-                    writer.write((String)e.getKey() + ": '" + ((String)e.getValue()).replace("'", "''") + "'\n");
+                    writer.write(e.getKey() + ": '" + e.getValue().replace("'", "''") + "'\n");
                 }
                 writer.close();
             }
@@ -929,15 +898,15 @@ public class PlotMe extends JavaPlugin {
             OutputStreamWriter writer2 = null;
             InputStream input = null;
             try {
-                input = (InputStream)new FileInputStream(file);
+                input = new FileInputStream(file);
                 final Yaml yaml = new Yaml();
                 final LinkedHashMap<String, String> obj = yaml.load(input);
                 if (obj instanceof LinkedHashMap) {
                     final LinkedHashMap<String, String> data = obj;
-                    writer2 = new OutputStreamWriter((OutputStream)new FileOutputStream(file, true), "UTF-8");
+                    writer2 = new OutputStreamWriter(new FileOutputStream(file, true), StandardCharsets.UTF_8);
                     for (final Map.Entry<String, String> e3 : properties.entrySet()) {
                         if (!data.containsKey(e3.getKey())) {
-                            writer2.write("\n" + (String)e3.getKey() + ": '" + ((String)e3.getValue()).replace("'", "''") + "'");
+                            writer2.write("\n" + e3.getKey() + ": '" + e3.getValue().replace("'", "''") + "'");
                         }
                     }
                     writer2.close();
@@ -971,7 +940,7 @@ public class PlotMe extends JavaPlugin {
     
     public static String caption(final String s) {
         if (PlotMe.captions.containsKey(s)) {
-            return addColor((String)PlotMe.captions.get(s));
+            return addColor(PlotMe.captions.get(s));
         }
         PlotMe.logger.warning("Missing caption: " + s);
         return "ERROR:Missing caption '" + s + "'";
@@ -993,12 +962,10 @@ public class PlotMe extends JavaPlugin {
             for (int z3 = z1; z3 <= z2; ++z3) {
                 for (int y3 = y1; y3 <= y2; ++y3) {
                     final Block block = w.getBlockAt(x3, y3, z3);
-                    Bukkit.getScheduler().runTask((Plugin)this, (Runnable)new Runnable() {
-                        public void run() {
-                            final Protection protection = LWC.getInstance().findProtection(block);
-                            if (protection != null) {
-                                protection.remove();
-                            }
+                    Bukkit.getScheduler().runTask(this, () -> {
+                        final Protection protection = LWC.getInstance().findProtection(block);
+                        if (protection != null) {
+                            protection.remove();
                         }
                     });
                 }

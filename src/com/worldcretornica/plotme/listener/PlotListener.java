@@ -50,7 +50,7 @@ public class PlotListener implements Listener {
         final Block b = event.getBlock();
         if (PlotManager.isPlotWorld(b)) {
             final Player p = event.getPlayer();
-            final boolean canbuild = PlotMe.cPerms((CommandSender)event.getPlayer(), "plotme.admin.buildanywhere");
+            final boolean canbuild = PlotMe.cPerms(event.getPlayer(), "plotme.admin.buildanywhere");
             final String id = PlotManager.getPlotId(b.getLocation());
             if (id.equalsIgnoreCase("")) {
                 if (!canbuild) {
@@ -59,7 +59,7 @@ public class PlotListener implements Listener {
                 }
             }
             else {
-                final Plot plot = (Plot)PlotManager.getMap(p).plots.get(id);
+                final Plot plot = PlotManager.getMap(p).plots.get(id);
                 if (plot == null) {
                     if (!canbuild) {
                         p.sendMessage(PlotMe.caption("ErrCannotBuild"));
@@ -84,7 +84,7 @@ public class PlotListener implements Listener {
         final Block b = event.getBlock();
         if (PlotManager.isPlotWorld(b)) {
             final Player p = event.getPlayer();
-            final boolean canbuild = PlotMe.cPerms((CommandSender)p, "plotme.admin.buildanywhere");
+            final boolean canbuild = PlotMe.cPerms(p, "plotme.admin.buildanywhere");
             final String id = PlotManager.getPlotId(b.getLocation());
             if (id.equalsIgnoreCase("")) {
                 if (!canbuild) {
@@ -125,7 +125,7 @@ public class PlotListener implements Listener {
             }
             else {
                 final Player p = (Player)e;
-                final boolean canbuild = PlotMe.cPerms((CommandSender)p, "plotme.admin.buildanywhere");
+                final boolean canbuild = PlotMe.cPerms(p, "plotme.admin.buildanywhere");
                 final String id = PlotManager.getPlotId(b.getLocation());
                 if (id.equalsIgnoreCase("")) {
                     if (!canbuild) {
@@ -163,9 +163,9 @@ public class PlotListener implements Listener {
     
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPlayerBucketEmpty(final PlayerBucketEmptyEvent event) {
-        if (!PlotMe.cPerms((CommandSender)event.getPlayer(), "plotme.admin.buildanywhere")) {
+        if (!PlotMe.cPerms(event.getPlayer(), "plotme.admin.buildanywhere")) {
             final BlockFace bf = event.getBlockFace();
-            final Block b = event.getBlockClicked().getLocation().add((double)bf.getModX(), (double)bf.getModY(), (double)bf.getModZ()).getBlock();
+            final Block b = event.getBlockClicked().getLocation().add(bf.getModX(), bf.getModY(), bf.getModZ()).getBlock();
             if (PlotManager.isPlotWorld(b)) {
                 final String id = PlotManager.getPlotId(b.getLocation());
                 final Player p = event.getPlayer();
@@ -190,7 +190,7 @@ public class PlotListener implements Listener {
     
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPlayerBucketFill(final PlayerBucketFillEvent event) {
-        if (!PlotMe.cPerms((CommandSender)event.getPlayer(), "plotme.admin.buildanywhere")) {
+        if (!PlotMe.cPerms(event.getPlayer(), "plotme.admin.buildanywhere")) {
             final Block b = event.getBlockClicked();
             if (PlotManager.isPlotWorld(b)) {
                 final String id = PlotManager.getPlotId(b.getLocation());
@@ -221,7 +221,7 @@ public class PlotListener implements Listener {
             final PlotMapInfo pmi = PlotManager.getMap(b);
             boolean blocked = false;
             final Player player = event.getPlayer();
-            final boolean canbuild = PlotMe.cPerms((CommandSender)player, "plotme.admin.buildanywhere");
+            final boolean canbuild = PlotMe.cPerms(player, "plotme.admin.buildanywhere");
             if (event.isBlockInHand() && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
                 final ItemStack is = player.getInventory().getItemInMainHand();
                 final ItemStack is2 = player.getInventory().getItemInOffHand();
@@ -272,13 +272,13 @@ public class PlotListener implements Listener {
                 }
             }
             else {
-                if (pmi.ProtectedBlocks.contains(b.getType()) && !PlotMe.cPerms((CommandSender)player, "plotme.unblock." + b.getType().name().toLowerCase())) {
+                if (pmi.ProtectedBlocks.contains(b.getType()) && !PlotMe.cPerms(player, "plotme.unblock." + b.getType().name().toLowerCase())) {
                     blocked = true;
                 }
                 final ItemStack is = event.getItem();
                 if (is != null && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
                     final Material itemid = is.getType();
-                    if (pmi.PreventedItems.contains(itemid) && !PlotMe.cPerms((CommandSender)player, new StringBuilder().append("plotme.unblock.").append(itemid).toString())) {
+                    if (pmi.PreventedItems.contains(itemid) && !PlotMe.cPerms(player, "plotme.unblock." + itemid)) {
                         blocked = true;
                     }
                 }
@@ -386,7 +386,7 @@ public class PlotListener implements Listener {
         if (PlotManager.isPlotWorld(event.getBlock())) {
             final BlockFace face = event.getDirection();
             for (final Block b : event.getBlocks()) {
-                final String id = PlotManager.getPlotId(b.getLocation().add((double)face.getModX(), (double)face.getModY(), (double)face.getModZ()));
+                final String id = PlotManager.getPlotId(b.getLocation().add(face.getModX(), face.getModY(), face.getModZ()));
                 if (id.equalsIgnoreCase("")) {
                     event.setCancelled(true);
                 }
@@ -407,12 +407,12 @@ public class PlotListener implements Listener {
     
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onStructureGrow(final StructureGrowEvent event) {
-        final List<BlockState> blocks = (List<BlockState>)event.getBlocks();
+        final List<BlockState> blocks = event.getBlocks();
         boolean found = false;
         for (int i = 0; i < blocks.size(); ++i) {
-            if (found || PlotManager.isPlotWorld((BlockState)blocks.get(i))) {
+            if (found || PlotManager.isPlotWorld(blocks.get(i))) {
                 found = true;
-                final String id = PlotManager.getPlotId(((BlockState)blocks.get(i)).getLocation());
+                final String id = PlotManager.getPlotId(blocks.get(i).getLocation());
                 if (id.equalsIgnoreCase("")) {
                     event.getBlocks().remove(i);
                     --i;
@@ -467,7 +467,7 @@ public class PlotListener implements Listener {
         if (PlotManager.isPlotWorld(b)) {
             final String id = PlotManager.getPlotId(b.getLocation());
             final Player p = event.getPlayer();
-            final boolean canbuild = PlotMe.cPerms((CommandSender)event.getPlayer(), "plotme.admin.buildanywhere");
+            final boolean canbuild = PlotMe.cPerms(event.getPlayer(), "plotme.admin.buildanywhere");
             if (id.equalsIgnoreCase("")) {
                 if (!canbuild) {
                     p.sendMessage(PlotMe.caption("ErrCannotBuild"));
@@ -500,7 +500,7 @@ public class PlotListener implements Listener {
         final Entity entity = event.getRemover();
         if (entity instanceof Player) {
             final Player p = (Player)entity;
-            final boolean canbuild = PlotMe.cPerms((CommandSender)p, "plotme.admin.buildanywhere");
+            final boolean canbuild = PlotMe.cPerms(p, "plotme.admin.buildanywhere");
             final Location l = event.getEntity().getLocation();
             if (PlotManager.isPlotWorld(l)) {
                 final String id = PlotManager.getPlotId(l);
@@ -537,7 +537,7 @@ public class PlotListener implements Listener {
         final Location l = event.getRightClicked().getLocation();
         if (PlotManager.isPlotWorld(l)) {
             final Player p = event.getPlayer();
-            final boolean canbuild = PlotMe.cPerms((CommandSender)p, "plotme.admin.buildanywhere");
+            final boolean canbuild = PlotMe.cPerms(p, "plotme.admin.buildanywhere");
             final String id = PlotManager.getPlotId(l);
             if (id.equalsIgnoreCase("")) {
                 if (!canbuild) {
@@ -576,7 +576,7 @@ public class PlotListener implements Listener {
             }
             else {
                 final Player p = (Player)e;
-                final boolean canbuild = PlotMe.cPerms((CommandSender)p, "plotme.admin.buildanywhere");
+                final boolean canbuild = PlotMe.cPerms(p, "plotme.admin.buildanywhere");
                 final String id = PlotManager.getPlotId(l);
                 if (id.equalsIgnoreCase("")) {
                     if (!canbuild) {
@@ -611,7 +611,7 @@ public class PlotListener implements Listener {
         final Location l = event.getEgg().getLocation();
         if (PlotManager.isPlotWorld(l)) {
             final Player p = event.getPlayer();
-            final boolean canbuild = PlotMe.cPerms((CommandSender)p, "plotme.admin.buildanywhere");
+            final boolean canbuild = PlotMe.cPerms(p, "plotme.admin.buildanywhere");
             final String id = PlotManager.getPlotId(l);
             if (id.equalsIgnoreCase("")) {
                 if (!canbuild) {

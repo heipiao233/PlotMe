@@ -15,7 +15,7 @@ public class MinecraftFontWidthCalculator {
     }
     
     public static int getCharWidth(final char c) {
-        final int k = MinecraftFontWidthCalculator.charWidthIndexIndex.indexOf((int)c);
+        final int k = MinecraftFontWidthCalculator.charWidthIndexIndex.indexOf(c);
         if (c != '§' && k >= 0) {
             return MinecraftFontWidthCalculator.charWidths[k];
         }

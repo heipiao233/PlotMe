@@ -17,7 +17,7 @@ public class PlotDenyListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerMove(final PlayerMoveEvent event) {
         final Player p = event.getPlayer();
-        if (PlotManager.isPlotWorld(p) && !PlotMe.cPerms((CommandSender)p, "plotme.admin.bypassdeny")) {
+        if (PlotManager.isPlotWorld(p) && !PlotMe.cPerms(p, "plotme.admin.bypassdeny")) {
             final Location to = event.getTo();
             final String idTo = PlotManager.getPlotId(to);
             if (!idTo.equalsIgnoreCase("")) {
@@ -32,7 +32,7 @@ public class PlotDenyListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerTeleport(final PlayerTeleportEvent event) {
         final Player p = event.getPlayer();
-        if (PlotManager.isPlotWorld(p) && !PlotMe.cPerms((CommandSender)p, "plotme.admin.bypassdeny")) {
+        if (PlotManager.isPlotWorld(p) && !PlotMe.cPerms(p, "plotme.admin.bypassdeny")) {
             final Location to = event.getTo();
             final String idTo = PlotManager.getPlotId(to);
             if (!idTo.equalsIgnoreCase("")) {
@@ -47,7 +47,7 @@ public class PlotDenyListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerJoin(final PlayerJoinEvent event) {
         final Player p = event.getPlayer();
-        if (PlotManager.isPlotWorld(p) && !PlotMe.cPerms((CommandSender)p, "plotme.admin.bypassdeny")) {
+        if (PlotManager.isPlotWorld(p) && !PlotMe.cPerms(p, "plotme.admin.bypassdeny")) {
             final String id = PlotManager.getPlotId(p);
             if (!id.equalsIgnoreCase("")) {
                 final Plot plot = PlotManager.getPlotById(p, id);

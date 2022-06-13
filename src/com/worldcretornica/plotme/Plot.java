@@ -46,7 +46,7 @@ public class Plot implements Comparable<Plot> {
         cal.add(6, 7);
         final java.util.Date utlDate = cal.getTime();
         this.expireddate = new Date(utlDate.getTime());
-        this.comments = new ArrayList<String[]>();
+        this.comments = new ArrayList<>();
         this.customprice = 0.0;
         this.forsale = false;
         this.finisheddate = "";
@@ -74,7 +74,7 @@ public class Plot implements Comparable<Plot> {
             final java.util.Date utlDate = cal.getTime();
             this.expireddate = new Date(utlDate.getTime());
         }
-        this.comments = new ArrayList<String[]>();
+        this.comments = new ArrayList<>();
         this.customprice = 0.0;
         this.forsale = false;
         this.finisheddate = "";
@@ -102,7 +102,7 @@ public class Plot implements Comparable<Plot> {
             final java.util.Date utlDate = cal.getTime();
             this.expireddate = new Date(utlDate.getTime());
         }
-        this.comments = new ArrayList<String[]>();
+        this.comments = new ArrayList<>();
         this.customprice = 0.0;
         this.forsale = false;
         this.finisheddate = "";
@@ -136,7 +136,7 @@ public class Plot implements Comparable<Plot> {
             final java.util.Date utlDate = cal.getTime();
             this.expireddate = new Date(utlDate.getTime());
         }
-        this.comments = new ArrayList<String[]>();
+        this.comments = new ArrayList<>();
         this.customprice = 0.0;
         this.forsale = false;
         this.finisheddate = "";
@@ -217,7 +217,7 @@ public class Plot implements Comparable<Plot> {
     }
     
     public String getExpire() {
-        return DateFormat.getDateInstance().format((java.util.Date)this.expireddate);
+        return DateFormat.getDateInstance().format(this.expireddate);
     }
     
     public void setFinished() {
@@ -257,7 +257,7 @@ public class Plot implements Comparable<Plot> {
     }
     
     public String[] getComments(final int i) {
-        return (String[])this.comments.get(i);
+        return this.comments.get(i);
     }
     
     public void addAllowed(final String name) {
@@ -355,7 +355,7 @@ public class Plot implements Comparable<Plot> {
     public void removeAllAllowed() {
         final HashMap<String, UUID> list = this.allowed.getAllPlayers();
         for (final String n : list.keySet()) {
-            final UUID uuid = (UUID)list.get(n);
+            final UUID uuid = list.get(n);
             SqlManager.deletePlotAllowed(PlotManager.getIdX(this.id), PlotManager.getIdZ(this.id), n, uuid, this.world);
         }
         this.allowed.clear();
@@ -364,7 +364,7 @@ public class Plot implements Comparable<Plot> {
     public void removeAllDenied() {
         final HashMap<String, UUID> list = this.denied.getAllPlayers();
         for (final String n : list.keySet()) {
-            final UUID uuid = (UUID)list.get(n);
+            final UUID uuid = list.get(n);
             SqlManager.deletePlotDenied(PlotManager.getIdX(this.id), PlotManager.getIdZ(this.id), n, uuid, this.world);
         }
         this.denied.clear();
@@ -423,7 +423,7 @@ public class Plot implements Comparable<Plot> {
             if (IncludeStar && str.equals("*")) {
                 return true;
             }
-            final UUID u = (UUID)list.get(str);
+            final UUID u = list.get(str);
             if (u != null && uuid != null && u.equals(uuid)) {
                 return true;
             }
@@ -472,7 +472,7 @@ public class Plot implements Comparable<Plot> {
             if (str.equals("*")) {
                 return true;
             }
-            final UUID u = (UUID)list.get(str);
+            final UUID u = list.get(str);
             if (u != null && uuid != null && u.equals(uuid)) {
                 return true;
             }
@@ -503,10 +503,10 @@ public class Plot implements Comparable<Plot> {
     }
     
     public int compareTo(final Plot plot) {
-        if (this.expireddate.compareTo((java.util.Date)plot.expireddate) == 0) {
+        if (this.expireddate.compareTo(plot.expireddate) == 0) {
             return this.owner.compareTo(plot.owner);
         }
-        return this.expireddate.compareTo((java.util.Date)plot.expireddate);
+        return this.expireddate.compareTo(plot.expireddate);
     }
     
     private void updateFinished(final String finishtime, final boolean isfinished) {

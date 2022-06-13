@@ -196,12 +196,12 @@ public class PlotGen extends ChunkGenerator {
     
     public List<BlockPopulator> getDefaultPopulators(final World world) {
         if (this.temppmi == null) {
-            return Arrays.asList(new BlockPopulator[] { new PlotRoadPopulator(), new PlotContentPopulator() });
+            return Arrays.asList(new PlotRoadPopulator(), new PlotContentPopulator());
         }
-        return Arrays.asList(new BlockPopulator[] { new PlotRoadPopulator(this.temppmi), new PlotContentPopulator(this.temppmi) });
+        return Arrays.asList(new PlotRoadPopulator(this.temppmi), new PlotContentPopulator(this.temppmi));
     }
     
     public Location getFixedSpawnLocation(final World world, final Random random) {
-        return new Location(world, 0.0, (double)(this.roadheight + 2), 0.0);
+        return new Location(world, 0.0, this.roadheight + 2, 0.0);
     }
 }

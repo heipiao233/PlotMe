@@ -13,7 +13,7 @@ import com.worldcretornica.plotme.PlotManager;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public class PlotWorldEdit7_3_0 implements PlotWorldEdit {
+public class PlotWorldEdit7_2 implements PlotWorldEdit {
     public void setMask(final Player p) {
         this.setMask(p, p.getLocation());
     }
@@ -34,7 +34,7 @@ public class PlotWorldEdit7_3_0 implements PlotWorldEdit {
                 final BlockVector3 pos1 = BlockVector3.at(bottom.getBlockX(), bottom.getBlockY(), bottom.getBlockZ());
                 final BlockVector3 pos2 = BlockVector3.at(top.getBlockX(), top.getBlockY(), top.getBlockZ());
                 final CuboidRegion cr = new CuboidRegion(world, pos1, pos2);
-                final RegionMask rm = new RegionMask((Region)cr);
+                final RegionMask rm = new RegionMask(cr);
                 session.setMask(rm);
                 return;
             }
@@ -49,8 +49,8 @@ public class PlotWorldEdit7_3_0 implements PlotWorldEdit {
             final BlockVector3 pos3 = BlockVector3.at(bottom.getBlockX(), bottom.getBlockY(), bottom.getBlockZ());
             final BlockVector3 pos4 = BlockVector3.at(top.getBlockX(), top.getBlockY(), top.getBlockZ());
             final CuboidRegion cr2 = new CuboidRegion(world2, pos3, pos4);
-            final RegionMask rm2 = new RegionMask((Region)cr2);
-            session.setMask((Mask)rm2);
+            final RegionMask rm2 = new RegionMask(cr2);
+            session.setMask(rm2);
         }
     }
     

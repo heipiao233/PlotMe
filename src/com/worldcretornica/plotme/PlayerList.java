@@ -9,7 +9,7 @@ public class PlayerList {
     private HashMap<String, UUID> playerlist;
     
     public PlayerList() {
-        this.playerlist = new HashMap<String, UUID>();
+        this.playerlist = new HashMap<>();
     }
     
     public PlayerList(final HashMap<String, UUID> players) {
@@ -39,7 +39,7 @@ public class PlayerList {
             }
         }
         if (!found.equals("")) {
-            uuid = (UUID)this.playerlist.get(found);
+            uuid = this.playerlist.get(found);
             this.playerlist.remove(found);
         }
         return uuid;
@@ -47,7 +47,7 @@ public class PlayerList {
     
     public String remove(final UUID uuid) {
         for (final String name : this.playerlist.keySet()) {
-            if (((UUID)this.playerlist.get(name)).equals(uuid)) {
+            if (this.playerlist.get(name).equals(uuid)) {
                 this.playerlist.remove(name);
                 return name;
             }
@@ -56,13 +56,13 @@ public class PlayerList {
     }
     
     public Set<String> getPlayers() {
-        return (Set<String>)this.playerlist.keySet();
+        return this.playerlist.keySet();
     }
     
     public String getPlayerList() {
         StringBuilder list = new StringBuilder();
         for (final String s : this.playerlist.keySet()) {
-            list = list.append(s + ", ");
+            list = list.append(s).append(", ");
         }
         if (list.length() > 1) {
             list = list.delete(list.length() - 2, list.length());
@@ -83,7 +83,7 @@ public class PlayerList {
     }
     
     public boolean contains(final UUID uuid) {
-        return this.playerlist.values().contains(uuid);
+        return this.playerlist.containsValue(uuid);
     }
     
     public HashMap<String, UUID> getAllPlayers() {
@@ -101,7 +101,7 @@ public class PlayerList {
     public void replace(final UUID uuid, final String newname) {
         if (uuid != null && this.playerlist != null && this.contains(uuid)) {
             for (final String name : this.playerlist.keySet()) {
-                if (this.playerlist.get(name) != null && ((UUID)this.playerlist.get(name)).equals(uuid)) {
+                if (this.playerlist.get(name) != null && this.playerlist.get(name).equals(uuid)) {
                     this.playerlist.remove(name);
                     this.playerlist.put(newname, uuid);
                 }

@@ -23,10 +23,10 @@ public class NameFetcher implements Callable<Map<UUID, String>> {
     }
     
     public Map<UUID, String> call() throws Exception {
-        final Map<UUID, String> uuidStringMap = new HashMap<UUID, String>();
+        final Map<UUID, String> uuidStringMap = new HashMap<>();
         for (final UUID uuid : this.uuids) {
             final HttpURLConnection connection = (HttpURLConnection)new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid.toString().replace("-", "")).openConnection();
-            final JSONObject response = (JSONObject)this.jsonParser.parse((Reader)new InputStreamReader(connection.getInputStream()));
+            final JSONObject response = (JSONObject)this.jsonParser.parse(new InputStreamReader(connection.getInputStream()));
             final String name = (String)response.get("name");
             if (name == null) {
                 continue;

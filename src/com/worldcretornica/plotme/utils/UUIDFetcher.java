@@ -33,12 +33,12 @@ public class UUIDFetcher implements Callable<Map<String, UUID>> {
     }
     
     public Map<String, UUID> call() throws Exception {
-        final Map<String, UUID> uuidMap = new HashMap<String, UUID>();
+        final Map<String, UUID> uuidMap = new HashMap<>();
         for (int requests = (int)Math.ceil(this.names.size() / 500.0), i = 0; i < requests; ++i) {
             final HttpURLConnection connection = createConnection();
             final String body = JSONArray.toJSONString(this.names.subList(i * 100, Math.min((i + 1) * 100, this.names.size())));
             writeBody(connection, body);
-            final JSONArray array = (JSONArray)this.jsonParser.parse((Reader)new InputStreamReader(connection.getInputStream()));
+            final JSONArray array = (JSONArray)this.jsonParser.parse(new InputStreamReader(connection.getInputStream()));
             for (final Object profile : array) {
                 final JSONObject jsonProfile = (JSONObject)profile;
                 final String id = (String)jsonProfile.get("id");
@@ -84,7 +84,7 @@ public class UUIDFetcher implements Callable<Map<String, UUID>> {
     
     public static UUID fromBytes(final byte[] array) {
         if (array.length != 16) {
-            throw new IllegalArgumentException(new StringBuilder().append("Illegal byte array length: ").append(array.length).toString());
+            throw new IllegalArgumentException("Illegal byte array length: " + array.length);
         }
         final ByteBuffer byteBuffer = ByteBuffer.wrap(array);
         final long mostSignificant = byteBuffer.getLong();
@@ -93,6 +93,6 @@ public class UUIDFetcher implements Callable<Map<String, UUID>> {
     }
     
     public static UUID getUUIDOf(final String name) throws Exception {
-        return (UUID)new UUIDFetcher(Arrays.asList(new String[] { name })).call().get(name);
+        return new UUIDFetcher(Arrays.asList(name)).call().get(name);
     }
 }
