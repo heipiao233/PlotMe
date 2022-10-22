@@ -2,7 +2,6 @@ package com.worldcretornica.plotme;
 
 import org.bukkit.entity.Player;
 import java.io.IOException;
-import org.bukkit.plugin.Plugin;
 import java.util.Map;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Bukkit;

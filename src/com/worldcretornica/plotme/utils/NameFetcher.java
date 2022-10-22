@@ -1,6 +1,5 @@
 package com.worldcretornica.plotme.utils;
 
-import java.io.Reader;
 import java.io.InputStreamReader;
 import org.json.simple.JSONObject;
 import java.net.URL;

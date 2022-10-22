@@ -10,9 +10,7 @@ import org.bukkit.Location;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.io.Writer;
 import java.io.BufferedWriter;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -40,11 +38,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.generator.ChunkGenerator;
 import java.io.IOException;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.command.CommandExecutor;
 import com.worldcretornica.plotme.listener.PlotDenyListener;
 import com.worldcretornica.plotme.listener.PlotWorldEditListener;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.event.Listener;
 import com.worldcretornica.plotme.listener.PlotListener;
 import org.bukkit.command.CommandSender;
 import org.bukkit.World;
@@ -155,7 +150,7 @@ public class PlotMe extends JavaPlugin {
     }
     
     private void doMetric() {
-        final Metrics metrics = new Metrics(this, 15438);
+        final Metrics metrics = new Metrics(this, 16710);
         metrics.addCustomChart(new Metrics.SingleLineChart("Plot worlds", PlotMe.plotmaps::size));
         metrics.addCustomChart(new Metrics.SingleLineChart("Average Plot size", ()->{
             if (PlotMe.plotmaps.size() > 0) {

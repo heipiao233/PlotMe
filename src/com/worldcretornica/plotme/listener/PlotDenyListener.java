@@ -7,7 +7,6 @@ import org.bukkit.event.EventHandler;
 import com.worldcretornica.plotme.Plot;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.command.CommandSender;
 import com.worldcretornica.plotme.PlotMe;
 import com.worldcretornica.plotme.PlotManager;
 import org.bukkit.event.player.PlayerMoveEvent;

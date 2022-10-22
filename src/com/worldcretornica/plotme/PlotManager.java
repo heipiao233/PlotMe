@@ -1,6 +1,5 @@
 package com.worldcretornica.plotme;
 
-import org.bukkit.plugin.Plugin;
 import com.griefcraft.model.Protection;
 import com.griefcraft.lwc.LWC;
 import java.util.Set;

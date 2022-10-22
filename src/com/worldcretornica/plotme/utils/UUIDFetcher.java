@@ -6,7 +6,6 @@ import java.net.URL;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import org.json.simple.JSONObject;
-import java.io.Reader;
 import java.io.InputStreamReader;
 import org.json.simple.JSONArray;
 import java.util.HashMap;

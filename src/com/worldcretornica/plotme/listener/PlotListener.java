@@ -38,7 +38,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.entity.Player;
 import org.bukkit.block.Block;
 import com.worldcretornica.plotme.Plot;
-import org.bukkit.command.CommandSender;
 import com.worldcretornica.plotme.PlotMe;
 import com.worldcretornica.plotme.PlotManager;
 import org.bukkit.event.block.BlockBreakEvent;

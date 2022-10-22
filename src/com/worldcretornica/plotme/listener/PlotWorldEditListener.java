@@ -3,7 +3,6 @@ package com.worldcretornica.plotme.listener;
 import org.bukkit.block.Block;
 import org.bukkit.Material;
 import org.bukkit.event.block.Action;
-import org.bukkit.command.CommandSender;
 import org.bukkit.event.player.PlayerInteractEvent;
 import com.worldcretornica.plotme.Plot;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
